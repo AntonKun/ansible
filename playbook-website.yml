@@ -1,0 +1,47 @@
+- name: Nginx install 
+  hosts: webservers
+  become: true
+
+  vars:
+    trusted_ports:
+      - 22/tcp
+      - 80/tcp
+      - 443/tcp
+    packages:
+      - firewalld
+      - nginx
+
+  tasks:
+  - name: Install requirement packages
+    package:
+      name: "{{ packages }}"
+      state: present
+
+  - name: Nginx start
+    systemd:
+      name: nginx
+      state: started
+      enabled: yes
+
+  - name: Update index.html
+    copy:
+      src: site/Moderna/       
+      dest: /usr/share/nginx/html/ 
+    notify: restart nginx
+
+  - name: Open trusted ports on firewall
+    firewalld:
+      port: "{{ item }}"
+      permanent: true
+      state: enabled
+    with_items:
+      - "{{ trusted_ports }}"
+    notify: restart firewalld
+
+
+  handlers:
+    - name: restart firewalld
+      action: service name=firewalld state=reloaded
+
+    - name: restart nginx
+      action: service name=nginx state=reloaded
