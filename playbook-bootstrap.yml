@@ -1,0 +1,37 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates
+    tags: always
+    dnf: 
+      update_only: yes
+      update_cache: yes
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: create ansible-user
+    tags: always
+    user:
+      name: ansible-user
+      groups: root
+
+  - name: add ssh key for ansible-user
+    tags: always
+    authorized_key:
+      user: ansible-user
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOWO20KnT1nYseE003WdsdMCvk5/o6zxus40OOY3ikz0 ansible"
+   
+  - name: add sudoers file for ansible-user
+    tags: always
+    copy: 
+      src: sudoer_ansible-user
+      dest: /etc/sudoers.d/ansible-user
+      owner: root
+      group: root
+      mode: 0440
+
