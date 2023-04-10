@@ -1,0 +1,8 @@
+pipeline {
+	agent any
+	stages {
+		stage('Run Ansible playbook') {
+			sh 'ansible-playbook playbook-website-in-docker.yml'
+		}
+	}
+}
