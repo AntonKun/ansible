@@ -1,2 +1,2 @@
 [webservers]
-centOS_1 ansible_host=3.71.102.240
+centOS_1 ansible_host=18.184.158.175
