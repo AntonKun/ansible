@@ -4,6 +4,8 @@ pipeline {
 	stages {
 		stage('Run Ansible playbook') {
 			steps {
+				sh 'ansible-galaxy collection install community.docker'
+				sh 'ansible-galaxy collection install ansible.posix'
 				sh 'ansible-playbook playbook-website-in-docker.yml'
 			}
 		}
