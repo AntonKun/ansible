@@ -1,0 +1,12 @@
+---
+- name: Check Disk Space
+  hosts: sw
+  gather_facts: false
+  tasks:
+    - name: Execute df command
+      command: df -BG
+      register: disk_space_output
+
+    - name: Display disk space information
+      debug:
+        var: disk_space_output.stdout_lines
