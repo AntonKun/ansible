@@ -1,0 +1,53 @@
+---
+- name: Deploy Nginx container
+  hosts: webservers
+  become: true
+  pre_tasks:
+
+  - name: update repo cache
+    tags: always
+    dnf:
+      update_cache: yes
+    changed_when: false
+
+
+  tasks:
+  
+  - name: Add Docker repository
+    command: "dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo"
+
+  - name: Install Docker
+    dnf:
+      name: docker-ce
+      state: present
+      install_weak_deps: no
+
+  - name: Check Docker daemon status
+    service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Load Nginx image
+    community.general.docker_image:
+      name: nginx
+      source: pull
+      state: present
+
+  - name: Copy website files on server
+    tags: web
+    synchronize:
+      src: site/Moderna/
+      dest: /home/ec2-user/site
+      mode: push
+
+  - name: Run Nginx container
+    community.general.docker_container:
+      name: nginx-container
+      image: nginx
+      ports:
+        - "80:80"
+      volumes:
+        - "/home/ec2-user/site:/usr/share/nginx/html"
+      state: started
+      restart_policy: always
