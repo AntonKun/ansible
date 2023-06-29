@@ -1,28 +1,29 @@
 ---
-- name: Встановлення та налаштування Node Exporter
-  hosts: your_host  # Замініть на своє ім'я хоста або групу хостів
+- name: Node Exporter installing and configuring
+  hosts: "{{ hosts }}" 
   
   tasks:
-    - name: Додати користувача node_exporter
+    - name: Add node_exporter user
       become: true
       user:
         name: node_exporter
         system: yes
         shell: /bin/false
 
-    - name: Завантажити Node Exporter
+    - name: Download Node Exporter
       become: true
       get_url:
         url: "https://github.com/prometheus/node_exporter/releases/download/v1.6.0/node_exporter-1.6.0.linux-amd64.tar.gz"
         dest: "/tmp/node_exporter-1.6.0.linux-amd64.tar.gz"
 
-    - name: Розпакувати Node Exporter
+    - name: Unpack Node Exporter
       become: true
       unarchive:
         src: "/tmp/node_exporter-1.6.0.linux-amd64.tar.gz"
         dest: "/tmp"
+        remote_src: yes
 
-    - name: Встановити Node Exporter
+    - name: Install Node Exporter
       become: true
       copy:
         src: "/tmp/node_exporter-1.6.0.linux-amd64/node_exporter"
@@ -30,8 +31,9 @@
         owner: node_exporter
         group: node_exporter
         mode: '0755'
+        remote_src: yes
 
-    - name: Створити файл конфігурації systemd
+    - name: Create config file systemd
       become: true
       copy:
         content: |
@@ -49,12 +51,12 @@
           WantedBy=multi-user.target
         dest: "/etc/systemd/system/node_exporter.service"
 
-    - name: Перезавантажити daemon systemd
+    - name: Reload daemon systemd
       become: true
       systemd:
         daemon_reload: yes
 
-    - name: Включити Node Exporter
+    - name: Start and enable Node Exporter
       become: true
       service:
         name: node_exporter

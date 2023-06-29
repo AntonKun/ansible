@@ -1,0 +1,11 @@
+---
+- name: Restart Solr service
+  hosts: sw
+  become: true
+
+  tasks:
+    - name: Restart Solr
+      systemd:
+        name: solr
+        state: restarted
+
